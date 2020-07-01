@@ -1,6 +1,6 @@
 {
   "name": "antd-icon-reduce-plugin",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "减少antd的图标打包体积，实现按需加载的功能",
   "main": "antd-icon-reduce-plugin.js",
   "files": [
@@ -14,7 +14,10 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fuluteam/antd-icon-reduce-plugin.git",
+    "url": "git+https://github.com/fuluteam/antd-icon-reduce-plugin.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "bugs": {
     "url": "https://github.com/fuluteam/antd-icon-reduce-plugin/issues"

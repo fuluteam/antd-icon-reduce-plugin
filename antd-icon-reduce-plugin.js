@@ -3,16 +3,20 @@
  * @author zhangkegui
  * @version 1.0
  */
-const path = require('path');
-const fs = require('fs');
+var path = require('path');
+var fs = require('fs');
+var modulePackage = require('./package.json');
 
-const projectDir = __dirname;
-const tempFilePath = path.resolve(projectDir, 'antd-icon-reduce.js'); // 临时生成的图标导出文件
-const loaderName = 'antd-icon-reduce-loader'; // 配套使用的loader，用于提取用到的icon
-let relativePath = projectDir.indexOf('node_modules') >= 0 ? '../node_modules' : 'node_modules';
-const antdModulePath = path.resolve(__dirname, relativePath, 'antd'); // antd在项目中的绝对路径
-let copyFilePath = '';
-let pluginOptions = null;
+var isInNodeModules = modulePackage.name === 'antd-icon-reduce-plugin';
+var projectDir = __dirname;
+var tempFilePath = path.resolve(projectDir, 'antd-icon-reduce.js'); // 临时生成的图标导出文件
+var loaderName = 'antd-icon-reduce-loader'; // 配套使用的loader，用于提取用到的icon
+var relativePath = isInNodeModules ? '../' : 'node_modules';
+var antdModulePath = path.resolve(projectDir, relativePath, 'antd'); // antd在项目中的绝对路径
+var copyFilePath = '';
+var iconFileRegx = /^antd-icon-reduce/;
+var pluginOptions = null;
+
 function isArray(arrLike) {
     return Object.prototype.toString.call(arrLike) === '[object Array]';
 }
@@ -58,24 +62,32 @@ function buildPluginFile(compiler) {
     if (copyFilePath && fs.existsSync(copyFilePath)) {
         fs.unlinkSync(copyFilePath);
     }
-    copyFilePath = path.resolve(projectDir, 'icon-reduce-'+ Date.now() +'.js');
+    copyFilePath = path.resolve(projectDir, 'antd-icon-reduce-'+ Date.now() +'.js');
     createFile(copyFilePath);
     fs.copyFileSync(tempFilePath, copyFilePath);
     if (fs.existsSync(copyFilePath) && fs.statSync(copyFilePath).size > 0) {
         setIconAlisa(compiler, copyFilePath);
     }
 }
+function clearDirIconFile() {
+    fs.readdirSync(projectDir).forEach(function(fileName) {
+        if (iconFileRegx.test(fileName) && fileName !== 'antd-icon-reduce-plugin.js') {
+            deleteFile(path.resolve(projectDir, fileName));
+        }
+    });
+}
 AntdIconReducePlugin.prototype.apply = function(compiler) {
     var mode = process.env.NODE_ENV || compiler.options.mode;
-    var { development = true } = pluginOptions || {};
-    if (!development && mode === 'development') {
+    var _pluginOptions = pluginOptions || {};
+    if ('development' in _pluginOptions && !_pluginOptions.development && mode === 'development') {
         return;
     }
+    clearDirIconFile();
     createTempFile();
-    if (mode === 'development') {
-        setIconAlisa(compiler);
-    }
-    const rules = compiler.options.module.rules;
+    // if (mode === 'development') {
+    setIconAlisa(compiler);
+    // }
+    var rules = compiler.options.module.rules;
     rules.forEach(function(ruleItem) {
         if (isArray(ruleItem.use)) {
             for (var i = 0; i < ruleItem.use.length; i++) {
