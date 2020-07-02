@@ -71,7 +71,9 @@ function buildPluginFile(compiler) {
 }
 function clearDirIconFile() {
     fs.readdirSync(projectDir).forEach(function(fileName) {
-        if (iconFileRegx.test(fileName) && fileName !== 'antd-icon-reduce-plugin.js') {
+        if (iconFileRegx.test(fileName)
+        && fileName !== 'antd-icon-reduce-plugin.js'
+        && fileName !== 'antd-icon-reduce-loader.js') {
             deleteFile(path.resolve(projectDir, fileName));
         }
     });
@@ -81,6 +83,10 @@ AntdIconReducePlugin.prototype.apply = function(compiler) {
     var _pluginOptions = pluginOptions || {};
     if ('development' in _pluginOptions && !_pluginOptions.development && mode === 'development') {
         return;
+    }
+    var initIcons = [];
+    if (isArray(_pluginOptions.icons)) {
+        initIcons = _pluginOptions.icons;
     }
     clearDirIconFile();
     createTempFile();
@@ -95,6 +101,7 @@ AntdIconReducePlugin.prototype.apply = function(compiler) {
                     ruleItem.use[i] = {
                         loader: loaderName,
                         options: {
+                            initIcons: initIcons,
                             filePath: tempFilePath, // 给loader添加临时路径配置
                         },
                     };
