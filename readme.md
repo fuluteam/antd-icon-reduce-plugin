@@ -22,6 +22,7 @@ var AntdIconReducePlugin = require('antd-icon-reduce-plugin');
 ...
 plugins: [
     new AntdIconReducePlugin({
+        icons: ['download', { type: 'up', theme: 'outline' }, ...], // 自定义需要加入的图标，在插件不能解析源代码的情况下使用,支持字符串和对象两种写法
     	development: true, // 是否在开发环境模式下运行，默认为true
     }),
     ...
