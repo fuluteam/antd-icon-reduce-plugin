@@ -1,6 +1,6 @@
 {
   "name": "antd-icon-reduce-plugin",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "减少antd的图标打包体积，实现按需加载的功能",
   "main": "antd-icon-reduce-plugin.js",
   "files": [

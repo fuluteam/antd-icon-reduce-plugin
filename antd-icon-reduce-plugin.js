@@ -16,7 +16,7 @@ var antdModulePath = path.resolve(projectDir, relativePath, 'antd'); // antdåœ¨é
 var copyFilePath = '';
 var iconFileRegx = /^antd-icon-reduce/;
 var pluginOptions = null;
-
+var mode = '';
 function isArray(arrLike) {
     return Object.prototype.toString.call(arrLike) === '[object Array]';
 }
@@ -44,6 +44,9 @@ function createFile(filePath) {
     }
 }
 function setIconAlisa(compiler, filePath = tempFilePath) {
+    if (fs.statSync(tempFilePath).size < 1 && mode === 'development') {
+        return;
+    }
     if (!compiler.options.resolve) {
         compiler.options.resolve = {
             alias: {
@@ -79,7 +82,7 @@ function clearDirIconFile() {
     });
 }
 AntdIconReducePlugin.prototype.apply = function(compiler) {
-    var mode = process.env.NODE_ENV || compiler.options.mode;
+    mode = process.env.NODE_ENV || compiler.options.mode;
     var _pluginOptions = pluginOptions || {};
     if ('development' in _pluginOptions && !_pluginOptions.development && mode === 'development') {
         return;
@@ -90,9 +93,7 @@ AntdIconReducePlugin.prototype.apply = function(compiler) {
     }
     clearDirIconFile();
     createTempFile();
-    // if (mode === 'development') {
     setIconAlisa(compiler);
-    // }
     var rules = compiler.options.module.rules;
     rules.forEach(function(ruleItem) {
         if (isArray(ruleItem.use)) {
