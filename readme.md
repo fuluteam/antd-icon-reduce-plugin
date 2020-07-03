@@ -22,9 +22,29 @@ var AntdIconReducePlugin = require('antd-icon-reduce-plugin');
 ...
 plugins: [
     new AntdIconReducePlugin({
-        icons: ['download', { type: 'up', theme: 'outline' }, ...], // 自定义需要加入的图标，在插件不能解析源代码的情况下使用,支持字符串和对象两种写法
+        icons: ['download', { type: 'up', theme: 'outline' }, ...], // 自定义需要加入的图标,支持字符串和对象两种写法，默认为[]
     	development: true, // 是否在开发环境模式下运行，默认为true
     }),
     ...
 ]
 ```
+
+### 注意事项
+
+* 插件只能处理使用字符串字面量来定义Icon类型，使用变量或者其他赋值方式将会被忽略，只有如下两种方式可以被识别:
+
+1.字符串字面量直接定义
+```
+<Icon type="down" />
+```
+2.三元符
+```
+const isUp = true;
+
+<Icon type={isUp ? 'up' : 'down'}
+
+```
+
+* 在其他未识别的情况下，需要通过插件的icons属性手动传入图标。
+
+
