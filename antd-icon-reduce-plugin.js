@@ -65,6 +65,9 @@ function buildPluginFile(compiler) {
     if (copyFilePath && fs.existsSync(copyFilePath)) {
         fs.unlinkSync(copyFilePath);
     }
+    if (mode === 'production') {
+        return;
+    }
     copyFilePath = path.resolve(projectDir, 'antd-icon-reduce-'+ Date.now() +'.js');
     createFile(copyFilePath);
     fs.copyFileSync(tempFilePath, copyFilePath);
