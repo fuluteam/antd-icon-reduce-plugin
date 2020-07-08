@@ -44,7 +44,7 @@ function createFile(filePath) {
     }
 }
 function setIconAlisa(compiler, filePath = tempFilePath) {
-    if (fs.statSync(tempFilePath).size < 1 && mode === 'development') {
+    if (fs.statSync(tempFilePath).size < 1) {
         return;
     }
     if (!compiler.options.resolve) {
@@ -65,9 +65,9 @@ function buildPluginFile(compiler) {
     if (copyFilePath && fs.existsSync(copyFilePath)) {
         fs.unlinkSync(copyFilePath);
     }
-    if (mode === 'production') {
-        return;
-    }
+    // if (mode === 'production') {
+    //     return;
+    // }
     copyFilePath = path.resolve(projectDir, 'antd-icon-reduce-'+ Date.now() +'.js');
     createFile(copyFilePath);
     fs.copyFileSync(tempFilePath, copyFilePath);
