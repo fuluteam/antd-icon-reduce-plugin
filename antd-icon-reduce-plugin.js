@@ -44,7 +44,7 @@ function createFile(filePath) {
     }
 }
 function setIconAlisa(compiler, filePath = tempFilePath) {
-    if (fs.statSync(tempFilePath).size < 1) {
+    if (fs.statSync(tempFilePath).size <= 0 && mode !== 'production') {
         return;
     }
     if (!compiler.options.resolve) {
@@ -65,9 +65,6 @@ function buildPluginFile(compiler) {
     if (copyFilePath && fs.existsSync(copyFilePath)) {
         fs.unlinkSync(copyFilePath);
     }
-    // if (mode === 'production') {
-    //     return;
-    // }
     copyFilePath = path.resolve(projectDir, 'antd-icon-reduce-'+ Date.now() +'.js');
     createFile(copyFilePath);
     fs.copyFileSync(tempFilePath, copyFilePath);
@@ -129,14 +126,16 @@ AntdIconReducePlugin.prototype.apply = function(compiler) {
             },
         }]
     });
-    compiler.hooks.make.tap('antd-icon-reduce-make', function(compiler) {
+    compiler.hooks.make.tap('antd-icon-reduce-make', function(compilation) {
+        console.log('antd-icon-reduce-make');
         if (mode !== 'production') {
-            buildPluginFile(compiler);
+            buildPluginFile(compilation);
         }
     });
-    compiler.hooks.emit.tap('antd-icon-reduce-emit', function(compiler) {
+    compiler.hooks.emit.tap('antd-icon-reduce-emit', function(compilation) {
+        console.log('antd-icon-reduce-emit');
         if (mode === 'production') {
-            buildPluginFile(compiler);
+            buildPluginFile(compilation);
         }
     });
     compiler.hooks.done.tap('antd-icon-reduce-done', function() {
