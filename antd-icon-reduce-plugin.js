@@ -17,7 +17,6 @@ var copyFilePath = '';
 var iconFileRegx = /^antd-icon-reduce/;
 var pluginOptions = null;
 var savedIconFilePath = '';
-var saveFilePathValid = false;
 var mode = '';
 function isArray(arrLike) {
     return Object.prototype.toString.call(arrLike) === '[object Array]';
@@ -28,13 +27,16 @@ function AntdIconReducePlugin(options) {
 }
 
 function deleteAllFile() {
-    if (saveFilePathValid) {
-        fs.copyFileSync(tempFilePath, savedIconFilePath);
-    }
+    asyncIconFileToLocal();
     deleteFile();
     deleteFile(copyFilePath);
 }
-
+function asyncIconFileToLocal() {
+    if (!fs.existsSync(savedIconFilePath)) {
+        fs.writeFileSync(savedIconFilePath, '');
+    }
+    fs.copyFileSync(tempFilePath, savedIconFilePath);
+}
 function deleteFile(filePath = tempFilePath) {
     if (filePath && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -96,12 +98,11 @@ AntdIconReducePlugin.prototype.apply = function(compiler) {
     if (isArray(_pluginOptions.icons)) {
         initIcons = _pluginOptions.icons;
     }
-    if (_pluginOptions.savedIconFilePath) {
+    if (_pluginOptions.iconFilePath) {
         savedIconFilePath = _pluginOptions.iconFilePath;
     }
-    saveFilePathValid = fs.existsSync(savedIconFilePath);
-    if (saveFilePathValid && mode === 'production') {
-        setIconAlisa(savedIconFilePath);
+    if (mode === 'production' && fs.existsSync(savedIconFilePath)) {
+        setIconAlisa(compiler, savedIconFilePath);
         return;
     }
     clearDirIconFile();
@@ -143,6 +144,7 @@ AntdIconReducePlugin.prototype.apply = function(compiler) {
     compiler.hooks.make.tap('antd-icon-reduce-make', function(compilation) {
         if (mode !== 'production') {
             buildPluginFile(compilation);
+            asyncIconFileToLocal();
         }
     });
     compiler.hooks.emit.tap('antd-icon-reduce-emit', function(compilation) {
@@ -153,6 +155,8 @@ AntdIconReducePlugin.prototype.apply = function(compiler) {
     compiler.hooks.done.tap('antd-icon-reduce-done', function() {
         if (mode === 'production') {
             deleteAllFile();
+        } else {
+            asyncIconFileToLocal();
         }
     });
     compiler.hooks.watchClose.tap('antd-icon-reduce-close', function(compilation) {
