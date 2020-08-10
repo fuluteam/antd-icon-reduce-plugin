@@ -24,6 +24,7 @@ plugins: [
     new AntdIconReducePlugin({
         icons: ['download', { type: 'up', theme: 'outline' }, ...], // 自定义需要加入的图标,支持字符串和对象两种写法，默认为[]
     	development: true, // 是否在开发环境模式下运行，默认为true
+        iconFilePath: ..., // 指定图标收集文件保存的绝对路径，如果编译后的项目中图标有缺失，可以选择保存到本地，然后再次编译输出即可(该配置项只在mode=production下起作用)
     }),
     ...
 ]

@@ -16,6 +16,8 @@ var antdModulePath = path.resolve(projectDir, relativePath, 'antd'); // antdåœ¨é
 var copyFilePath = '';
 var iconFileRegx = /^antd-icon-reduce/;
 var pluginOptions = null;
+var savedIconFilePath = '';
+var saveFilePathValid = false;
 var mode = '';
 function isArray(arrLike) {
     return Object.prototype.toString.call(arrLike) === '[object Array]';
@@ -26,6 +28,9 @@ function AntdIconReducePlugin(options) {
 }
 
 function deleteAllFile() {
+    if (saveFilePathValid) {
+        fs.copyFileSync(tempFilePath, savedIconFilePath);
+    }
     deleteFile();
     deleteFile(copyFilePath);
 }
@@ -91,6 +96,14 @@ AntdIconReducePlugin.prototype.apply = function(compiler) {
     if (isArray(_pluginOptions.icons)) {
         initIcons = _pluginOptions.icons;
     }
+    if (_pluginOptions.savedIconFilePath) {
+        savedIconFilePath = _pluginOptions.iconFilePath;
+    }
+    saveFilePathValid = fs.existsSync(savedIconFilePath);
+    if (saveFilePathValid && mode === 'production') {
+        setIconAlisa(savedIconFilePath);
+        return;
+    }
     clearDirIconFile();
     createTempFile();
     setIconAlisa(compiler);
@@ -122,18 +135,17 @@ AntdIconReducePlugin.prototype.apply = function(compiler) {
         use: [{
             loader: "antd-icon-reduce-loader",
             options: {
-                filePath: tempFilePath, 
+                initIcons: initIcons,
+                filePath: tempFilePath,
             },
         }]
     });
     compiler.hooks.make.tap('antd-icon-reduce-make', function(compilation) {
-        console.log('antd-icon-reduce-make');
         if (mode !== 'production') {
             buildPluginFile(compilation);
         }
     });
     compiler.hooks.emit.tap('antd-icon-reduce-emit', function(compilation) {
-        console.log('antd-icon-reduce-emit');
         if (mode === 'production') {
             buildPluginFile(compilation);
         }
