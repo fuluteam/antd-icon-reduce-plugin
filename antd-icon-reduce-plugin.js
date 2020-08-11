@@ -51,7 +51,7 @@ function createFile(filePath) {
     }
 }
 function setIconAlisa(compiler, filePath = tempFilePath) {
-    if (fs.statSync(tempFilePath).size <= 0 && mode !== 'production') {
+    if (mode !== 'production' && fs.statSync(filePath).size <= 0) {
         return;
     }
     if (!compiler.options.resolve) {
